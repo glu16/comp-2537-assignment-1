@@ -48,12 +48,12 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  if (!req.session.username) {
+  if (!req.session.authenticated) {
     const buttons = `
       <button onclick="window.location.href='/signup'">Sign up</button>
       <button onclick="window.location.href='/login'">Log in</button>
     `;
-    res.send(`<h1>Create an account or log in.</h1>${buttons}`);
+    res.send(`<h1>Create an account or log in</h1>${buttons}`);
   } else {
     const buttons = `
       <button onclick="window.location.href='/members'">Go to Members Area</button>
@@ -117,7 +117,7 @@ app.get("/login", (req, res) => {
   var html = `
     <h1>Log in</h1>
     <form action='/loggingin' method='post'>
-    <input name='username' type='text' placeholder='Username'>
+    <input name='email' type='text' placeholder='Email'>
     <input name='password' type='password' placeholder='Password'>
     <button>Submit</button>
     </form>
@@ -158,11 +158,11 @@ app.post("/submitUser", async (req, res) => {
 });
 
 app.post("/loggingin", async (req, res) => {
-  var username = req.body.username;
+  var email = req.body.email;
   var password = req.body.password;
 
   const schema = Joi.string().max(20).required();
-  const validationResult = schema.validate(username);
+  const validationResult = schema.validate(email);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/login");
@@ -170,8 +170,8 @@ app.post("/loggingin", async (req, res) => {
   }
 
   const result = await userCollection
-    .find({ username: username })
-    .project({ username: 1, password: 1, _id: 1 })
+    .find({ email: email })
+    .project({ username: 1, email: 1, password: 1, _id: 1 })
     .toArray();
 
   console.log(result);
@@ -183,7 +183,8 @@ app.post("/loggingin", async (req, res) => {
   if (await bcrypt.compare(password, result[0].password)) {
     console.log("Correct password");
     req.session.authenticated = true;
-    req.session.username = username;
+    req.session.email = email;
+    req.session.username = result[0].username;
     req.session.cookie.maxAge = expireTime;
 
     res.redirect("/loggedin");
