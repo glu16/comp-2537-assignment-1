@@ -191,7 +191,7 @@ app.post("/loggingin", async (req, res) => {
     return;
   } else {
     console.log("Incorrect password");
-    res.redirect("/login");
+    res.send(`Incorrect password. Please <a href="/login">try again</a>.`);
     return;
   }
 });
