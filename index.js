@@ -153,9 +153,12 @@ app.post("/submitUser", async (req, res) => {
   });
   console.log("Inserted user");
 
-  var html = "Successfully created user";
-  res.send(html);
+  req.session.authenticated = true;
+  req.session.username = username;
+
+  res.redirect("/");
 });
+
 
 app.post("/loggingin", async (req, res) => {
   var email = req.body.email;
