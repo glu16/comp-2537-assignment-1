@@ -159,7 +159,6 @@ app.post("/submitUser", async (req, res) => {
   res.redirect("/");
 });
 
-
 app.post("/loggingin", async (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
